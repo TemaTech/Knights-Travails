@@ -1,2 +1,2 @@
 # Knights-Travails
-This is a project for TOP's curriculum.
+This is a project for The Odin Project's curriculum.

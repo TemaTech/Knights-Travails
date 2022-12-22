@@ -18,22 +18,36 @@ function knightMoves(A, B) {
         gameboard.set(square[0], square[1]);
     }
 
-    function bfs(start, visited = new Set(), path = []) {
-        path.push(start);
-        visited.add(`${start[0]},${start[1]}`);
-        const moves = gameboard.get(start.splice(',').join(',').toString());
+    function bfs(start, end) {
+        const queue = [[start, []]];
+        const visited = new Set();
 
-        
-        for (const move of moves) {
-            if (move[0] == B[0] && move[1] == B[1]) {
-                console.log(path)
+        while(queue.length > 0) {
+            const [pos, path] = queue.shift();
+            visited.add(`${pos[0]},${pos[1]}`);
+
+            if (pos[0] === end[0] && pos[1] === end[1]) {
                 return path;
-            } else if (!visited.has(`${move[0]},${move[1]}`)) {
-                dfs(move, visited, path);
+            }
+
+            const moves = gameboard.get(`${pos[0]},${pos[1]}`);
+            for (const move of moves) {
+                if (!visited.has(`${move[0]},${move[1]}`)) {
+                    queue.push([move, [...path, move]]);
+                }
             }
         }
+        
+        return null;
     }
-    return dfs(A)
+    const path = bfs(A, B);
+    path.unshift(A)
+    if (path) {
+        console.log(`You made it in ${path.length} moves! Here's your path:`);
+        console.log(path);
+    } else {
+        console.log(`No path was found from ${A} to ${B}, try again :(`);
+    }
 }
 
 function allPossibleMoves(x, y) {
@@ -59,11 +73,11 @@ function allPossibleMoves(x, y) {
     return allPossibleMoves
 }
 
-console.log(knightMoves([0, 0],[3, 3]));
+console.log(knightMoves([3, 3],[4, 3]));
 
 // > knightMoves([3,3],[4,3])
 // => You made it in 3 moves!  Here's your path:
 //   [3,3]
 //   [4,5]
-//   [2,4]
+//   [6,4]
 //   [4,3]
