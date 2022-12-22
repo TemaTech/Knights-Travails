@@ -1,82 +1,69 @@
-function knightMoves(start, end) {
-    const root = new Node(start, null, null);
-    const queue = [root];
-    const visited = new Set();
-    let shortestPath = [start];
-
-    while(queue.length > 0) {
-        const current = queue.shift();
-        visited.add(`${current.position[0]},${current.position[1]}`);
-
-        if (current.position[0] == end[0] && current.position[1] == end[1]) {
-            return visited;
+function knightMoves(A, B) {
+    // Add nodes
+    const gameboard = new Map();
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+            gameboard.set(`${i},${j}`, []);
         }
+    }
 
-        const moves = generateMoves(current.position);
+    // Add edges
+    for (let square of gameboard) {
+        const arr = square[0].split(',');
+        arr[0] = parseInt(arr[0]);
+        arr[1] = parseInt(arr[1]);
 
+        square[1] = allPossibleMoves(arr[0], arr[1]);
+
+        gameboard.set(square[0], square[1]);
+    }
+
+    function bfs(start, visited = new Set(), path = []) {
+        path.push(start);
+        visited.add(`${start[0]},${start[1]}`);
+        const moves = gameboard.get(start.splice(',').join(',').toString());
+
+        
         for (const move of moves) {
-            if (!visited.has(`${move[0]},${move[1]}`)) {
-                const child = new Node(move, null, null);
-                if ((child.position[0] + child.position[1]) < (current.position[0] + current.position[1])) {
-                    current.left = child;
-                } else {
-                    current.right = child;
-                }
-                queue.push(child);
+            if (move[0] == B[0] && move[1] == B[1]) {
+                console.log(path)
+                return path;
+            } else if (!visited.has(`${move[0]},${move[1]}`)) {
+                dfs(move, visited, path);
             }
         }
     }
+    return dfs(A)
 }
 
-class Node {
-    constructor(position, left, right) {
-        this.position = position;
-        this.left = left;
-        this.right = right;
-    }
-}
+function allPossibleMoves(x, y) {
+    const allPossibleMoves = [];
 
-function generateMoves(position) {
-    const posX = position[0];
-    const posY = position[1];
+    const moves = [
+        [x + 1, y + 2],
+        [x - 1, y + 2],
+        [x + 1, y - 2],
+        [x - 1, y - 2],
+        [x + 2, y + 1],
+        [x - 2, y + 1],
+        [x + 2, y - 1],
+        [x - 2, y - 1]
+    ];
 
-    const directions = [[1, 2], [-1, 2], [1, -2], [-1, -2], [2, 1], [-2, 1], [2, -1], [-2, -1]];
-
-    const moves = [];
-
-    for (let d of directions) {
-        const newArr = [posX + d[0], posY + d[1]];
-        if ((newArr[0] >= 0 && newArr[0] <= 8) && (newArr[1] >= 0 && newArr[1] <= 8)) {
-            moves.push(newArr);
+    for (let move of moves) {
+        if (move[0] >= 0 && move[0] < 8 && move[1] >= 0 && move[1] < 8) {
+            allPossibleMoves.push(move);
         }
     }
 
-    return moves;
+    return allPossibleMoves
 }
 
-// Create a function that will use data about root, left, right, to find the shortest path in this binary tree to the node user is looking for.
-function getPath(root, node) {
-    if (root === null) {
-        return null;
-    }
+console.log(knightMoves([0, 0],[3, 3]));
 
-    if (root.position[0] === node[0] && root.position[1] === node[1]) {
-        return [root.position];
-    }
-
-    const leftPath = getPath(root.left, node);
-    const rightPath = getPath(root.right, node);
-
-    if (leftPath !== null) {
-        return [root.position].concat(leftPath);
-    } else if (rightPath !== null) {
-        return [root.position].concat(rightPath);
-    } else {
-        return null;
-    }
-}
-
-console.log(knightMoves([0,0], [3,3])); // [[0,0],[1,2]]
-
-// knightMoves([0,0],[3,3]) == [[0,0],[1,2],[3,3]
-// knightMoves([3,3],[0,0]) == [[3,3],[1,2],[0,0]]
+// > knightMoves([3,3],[4,3])
+// => You made it in 3 moves!  Here's your path:
+//   [3,3]
+//   [4,5]
+//   [2,4]
+//   [4,3]
